@@ -15,7 +15,6 @@ public class ImportExcel {
      * 读取数据
      */
     public static void main(String[] args) {
-        // todo 记得改为自己的测试文件
         String fileName = "E:\\IDEA_workspace\\partner\\src\\main\\resources\\testExcel.xlsx";
 //        readByListener(fileName);
         synchronousRead(fileName);

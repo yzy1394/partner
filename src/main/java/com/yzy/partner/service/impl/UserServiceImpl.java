@@ -365,6 +365,59 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return userPage;
     }
 
+    @Override
+    public int updateTags(String oldTag, String newTag, String operation,long id) {
+        if (id < 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户ID无效");
+        }
+
+        User user = userMapper.selectById(id);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.NULL_ERROR, "用户不存在");
+        }
+        String userTags=user.getTags();
+        // 1. 获取当前用户的标签并转换成列表
+        Gson gson = new Gson();
+        List<String> currentTags = gson.fromJson(userTags,new TypeToken<List<String>>() {}.getType());
+
+        // 2. 根据操作类型处理标签
+        switch (operation.toLowerCase()) {
+            case "add":
+                if (!currentTags.contains(newTag)) {
+                    currentTags.add(newTag);  // 添加新标签
+                } else {
+                    throw new BusinessException(ErrorCode.PARAMS_ERROR, "标签已存在");
+                }
+                break;
+
+            case "remove":
+                if (currentTags.contains(oldTag)) {
+                    currentTags.remove(oldTag);  // 删除旧标签
+                    // 如果标签列表中删除后出现空字符串，移除空字符串
+                    currentTags.removeIf(tag -> tag.isEmpty());
+                } else {
+                    throw new BusinessException(ErrorCode.PARAMS_ERROR, "未找到指定的标签");
+                }
+                break;
+
+            case "update":
+                if (currentTags.contains(oldTag)) {
+                    int index = currentTags.indexOf(oldTag);  // 获取旧标签的索引
+                    currentTags.set(index, newTag);  // 替换为新标签
+                } else {
+                    throw new BusinessException(ErrorCode.PARAMS_ERROR, "未找到指定的标签");
+                }
+                break;
+
+            default:
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "无效的操作类型");
+        }
+        // 3. 更新数据库中的标签字段
+        user.setTags(gson.toJson(currentTags));
+        return userMapper.updateById(user);  // 更新数据库中的用户信息
+    }
+
+
 }
 
 

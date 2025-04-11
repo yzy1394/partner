@@ -96,5 +96,22 @@ public interface UserService extends IService<User> {
      */
     List<User> matchUsers(long num, User loginUser);
 
+    /**
+     * 推荐用户
+     * @param redisKey
+     * @param pageSize
+     * @param pageNum
+     * @return
+     */
     Page<User> recommendUsers(String redisKey, long pageSize, long pageNum);
+
+    /**
+     * 更新用户标签
+     * @param oldTag
+     * @param newTag
+     * @param operation
+     * @param user
+     * @return
+     */
+    int updateTags(String oldTag, String newTag, String operation,long id);
 }

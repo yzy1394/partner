@@ -7,6 +7,7 @@ import com.yzy.partner.common.ErrorCode;
 import com.yzy.partner.common.ResultUtils;
 import com.yzy.partner.exception.BusinessException;
 import com.yzy.partner.model.domain.User;
+import com.yzy.partner.model.request.UpdateTagsRequest;
 import com.yzy.partner.model.request.UserLoginRequest;
 import com.yzy.partner.model.request.UserRegisterRequest;
 import com.yzy.partner.service.UserService;
@@ -159,6 +160,31 @@ public class UserController {
         }
         User user = userService.getLoginUser(request);
         return ResultUtils.success(userService.matchUsers(num, user));
+    }
+
+    /**
+     * 更新用户标签
+     *
+     * @param request
+     * @param request
+     * @return
+     */
+    @PostMapping("/update/tags")
+    public BaseResponse<Integer> updateUserTags(@RequestBody UpdateTagsRequest updateTagsRequest, HttpServletRequest request){
+        // 校验参数是否为空
+        if (request == null || updateTagsRequest.getOperation() == null || updateTagsRequest.getOldTag() == null || updateTagsRequest.getNewTag() == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "旧标签、新标签和操作类型不能为空");
+        }
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null) {
+            throw new BusinessException(ErrorCode.NO_AUTH, "用户未登录");
+        }
+        //管理员可更改所有用户，普通用户只能更改自己
+        if(!userService.isAdmin(loginUser) && loginUser.getId()!=updateTagsRequest.getId()) {
+            throw new BusinessException(ErrorCode.NO_AUTH, "用户无权限");
+        }
+        int result = userService.updateTags(updateTagsRequest.getOldTag(), updateTagsRequest.getNewTag(), updateTagsRequest.getOperation(), updateTagsRequest.getId());
+        return ResultUtils.success(result);
     }
 
 }

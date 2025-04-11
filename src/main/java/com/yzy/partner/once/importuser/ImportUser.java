@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 public class ImportUser {
 
     public static void main(String[] args) {
-        // todo 记得改为自己的测试文件
         String fileName = "E:\\IDEA_workspace\\partner\\src\\main\\resources\\prodExcel.xlsx";
         // 这里 需要指定读用哪个class去读，然后读取第一个sheet 同步读取会自动finish
         List<PartnerTableUserInfo> userInfoList =
